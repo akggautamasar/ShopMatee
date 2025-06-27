@@ -7,8 +7,8 @@ interface NehaNameDisplayProps {
 }
 
 const NehaNameDisplay: React.FC<NehaNameDisplayProps> = ({ text, className = '' }) => {
-  // Check if the text contains "NEHA SHARMA" (case insensitive)
-  const nehaRegex = /NEHA\s+SHARMA/gi;
+  // Check if the text contains "NEHA SHARM" (case insensitive)
+  const nehaRegex = /NEHA\s+SHARM/gi;
   
   if (!nehaRegex.test(text)) {
     return <span className={className}>{text}</span>;
@@ -24,7 +24,7 @@ const NehaNameDisplay: React.FC<NehaNameDisplayProps> = ({ text, className = '' 
         <React.Fragment key={index}>
           {part}
           {matches[index] && (
-            <span className="neha-sharma-special">
+            <span className="neha-sharm-special">
               {matches[index]}
             </span>
           )}
