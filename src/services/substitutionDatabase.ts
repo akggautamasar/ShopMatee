@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Teacher, ClassSchedule, SubstitutionRecord } from '@/types/substitution';
 
@@ -31,7 +30,7 @@ export const teacherOperations = {
         subject: teacher.subject,
         post: teacher.post,
         contact_number: teacher.contactNumber,
-        schedule: teacher.schedule,
+        schedule: teacher.schedule as any,
         user_id: user.data.user?.id,
         photo_url: teacher.photo_url || null,
       })
@@ -59,7 +58,7 @@ export const teacherOperations = {
         subject: teacher.subject,
         post: teacher.post,
         contact_number: teacher.contactNumber,
-        schedule: teacher.schedule,
+        schedule: teacher.schedule as any,
         photo_url: teacher.photo_url || null,
       })
       .eq('id', teacher.id);
@@ -99,7 +98,7 @@ export const classOperations = {
       .from('class_schedules')
       .insert({
         class_name: classData.className,
-        schedule: classData.schedule,
+        schedule: classData.schedule as any,
         user_id: user.data.user?.id
       })
       .select()
@@ -119,7 +118,7 @@ export const classOperations = {
       .from('class_schedules')
       .update({
         class_name: classData.className,
-        schedule: classData.schedule
+        schedule: classData.schedule as any
       })
       .eq('id', classData.id);
 
