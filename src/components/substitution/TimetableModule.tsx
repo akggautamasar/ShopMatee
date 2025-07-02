@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Upload, Download, Copy, Edit, Save, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSubstitution, ClassSchedule } from '@/context/SubstitutionContext';
+import { PeriodEntry } from '@/types/substitution';
 import { parseCSV, downloadSampleTimetableCSV } from '@/utils/csvImport';
 import TimetableEditCell from './TimetableEditCell';
 import NehaNameDisplay from './NehaNameDisplay';
@@ -69,7 +71,7 @@ const TimetableModule = () => {
     }
   };
 
-  const updateClassSchedule = async (classId: string, day: string, period: string, newValue: { subject: string; teacher: string; time: string }) => {
+  const updateClassSchedule = async (classId: string, day: string, period: string, newValue: PeriodEntry) => {
     const classToUpdate = classes.find(c => c.id === classId);
     if (classToUpdate) {
       try {
@@ -211,6 +213,9 @@ const TimetableModule = () => {
       fileInputRef.current.value = '';
     }
   };
+
+  // Get list of all class names for the combined classes feature
+  const availableClasses = classes.map(c => c.className);
 
   if (loading) {
     return (
@@ -417,6 +422,7 @@ const TimetableModule = () => {
                             onSave={(newValue) => updateClassSchedule(selectedClass.id, day, period, newValue)}
                             className="min-h-[80px] w-full"
                             nehaNameDisplay={true}
+                            availableClasses={availableClasses}
                           />
                         </TableCell>
                       ))}
