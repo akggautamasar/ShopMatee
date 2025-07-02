@@ -13,16 +13,25 @@ export interface Teacher {
   photo_url?: string;
 }
 
+export interface PeriodEntry {
+  subject: string;
+  teacher: string;
+  time: string;
+  // New fields for multiple teachers/subjects
+  additionalEntries?: {
+    subject: string;
+    teacher: string;
+    type: 'split' | 'combined'; // split = same class different subjects, combined = multiple classes
+    combinedClasses?: string[]; // for combined classes scenario
+  }[];
+}
+
 export interface ClassSchedule {
   id: string;
   className: string;
   schedule: {
     [day: string]: {
-      [period: string]: {
-        subject: string;
-        teacher: string;
-        time: string;
-      };
+      [period: string]: PeriodEntry;
     };
   };
 }
