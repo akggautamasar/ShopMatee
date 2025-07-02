@@ -1,79 +1,57 @@
 
 import React, { useState } from 'react';
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, X, Edit } from "lucide-react";
-import NehaNameDisplay from './NehaNameDisplay';
+import { Edit } from "lucide-react";
+import { PeriodEntry } from '@/types/substitution';
+import MultiTeacherPeriodEditor from './MultiTeacherPeriodEditor';
+import MultiTeacherDisplay from './MultiTeacherDisplay';
 
 interface TimetableEditCellProps {
-  value: {
-    subject: string;
-    teacher: string;
-    time: string;
-  };
-  onSave: (newValue: { subject: string; teacher: string; time: string }) => void;
+  value: PeriodEntry;
+  onSave: (newValue: PeriodEntry) => void;
   className?: string;
   nehaNameDisplay?: boolean;
+  availableClasses?: string[];
 }
 
 const TimetableEditCell: React.FC<TimetableEditCellProps> = ({ 
   value, 
   onSave, 
   className,
-  nehaNameDisplay = false 
+  nehaNameDisplay = false,
+  availableClasses = []
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
 
-  const handleSave = () => {
-    onSave(editValue);
+  const handleSave = (newValue: PeriodEntry) => {
+    onSave(newValue);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditValue(value);
     setIsEditing(false);
   };
 
   if (isEditing) {
     return (
-      <div className={`p-2 space-y-1 ${className}`}>
-        <Input
-          value={editValue.subject}
-          onChange={(e) => setEditValue({...editValue, subject: e.target.value})}
-          placeholder="Subject"
-          className="text-xs h-6"
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <MultiTeacherPeriodEditor
+          value={value}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          availableClasses={availableClasses}
         />
-        <Input
-          value={editValue.teacher}
-          onChange={(e) => setEditValue({...editValue, teacher: e.target.value})}
-          placeholder="Teacher"
-          className="text-xs h-6"
-        />
-        <div className="flex gap-1">
-          <Button size="sm" onClick={handleSave} className="h-6 px-2">
-            <Check className="h-3 w-3" />
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleCancel} className="h-6 px-2">
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
       </div>
     );
   }
 
   return (
-    <div className={`p-2 group cursor-pointer hover:bg-gray-50 ${className}`} onClick={() => setIsEditing(true)}>
-      <div className="text-xs font-medium">{value.subject}</div>
-      <div className="text-xs text-gray-600">
-        {nehaNameDisplay ? (
-          <NehaNameDisplay text={value.teacher} />
-        ) : (
-          value.teacher
-        )}
-      </div>
-      <div className="text-xs text-gray-500">{value.time}</div>
-      <Edit className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+    <div className={`p-2 group cursor-pointer hover:bg-gray-50 relative ${className}`} onClick={() => setIsEditing(true)}>
+      <MultiTeacherDisplay 
+        entry={value} 
+        nehaNameDisplay={nehaNameDisplay}
+      />
+      <Edit className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 right-1" />
     </div>
   );
 };
