@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Teacher, ClassSchedule, SubstitutionRecord, SubstitutionState, SubstitutionAction } from '@/types/substitution';
@@ -31,8 +30,72 @@ export const SubstitutionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [state, dispatch] = useReducer(substitutionReducer, initialState);
   const { toast } = useToast();
 
-  const syncTeacherSchedules = () => {
-    dispatch({ type: 'SYNC_TEACHER_SCHEDULES' });
+  const syncTeacherSchedules = async () => {
+    console.log('Syncing teacher schedules...');
+    console.log('Current state:', { 
+      teacherCount: state.teachers.length, 
+      classCount: state.classes.length, 
+      periodCount: state.periods.length 
+    });
+    
+    if (state.teachers.length === 0) {
+      toast({ 
+        title: "No Teachers Found", 
+        description: "Please add teachers first before syncing schedules", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    if (state.classes.length === 0) {
+      toast({ 
+        title: "No Timetable Found", 
+        description: "Please create class timetables first before syncing schedules", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      
+      // First, sync the schedules in memory
+      dispatch({ type: 'SYNC_TEACHER_SCHEDULES' });
+      
+      // Get the updated teachers from the reducer
+      const updatedState = substitutionReducer(state, { type: 'SYNC_TEACHER_SCHEDULES' });
+      
+      // Save each updated teacher to the database
+      const updatePromises = updatedState.teachers.map(async (teacher) => {
+        try {
+          await teacherOperations.updateTeacher(teacher);
+          console.log(`Successfully updated teacher: ${teacher.name}`);
+        } catch (error) {
+          console.error(`Failed to update teacher ${teacher.name}:`, error);
+          throw error;
+        }
+      });
+      
+      await Promise.all(updatePromises);
+      
+      // Reload teachers from database to ensure UI is in sync
+      await loadTeachers();
+      
+      toast({ 
+        title: "Schedules Synchronized Successfully", 
+        description: `Updated schedules for ${updatedState.teachers.length} teachers based on the timetable` 
+      });
+      
+    } catch (error) {
+      console.error('Error syncing teacher schedules:', error);
+      toast({ 
+        title: "Sync Failed", 
+        description: "Failed to synchronize teacher schedules. Please try again.", 
+        variant: "destructive" 
+      });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
   };
 
   // Teacher operations
